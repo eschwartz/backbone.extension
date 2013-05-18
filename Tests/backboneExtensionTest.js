@@ -25,7 +25,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
     });
   });
 
-  afterEach(function() {
+  /*afterEach(function() {
     $dom.remove();
 
     // If there's a view, close
@@ -45,7 +45,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
 
     // Unsubscribe all global events
     $.unsubscribe();
-  });
+  });*/
 
   it("should convert named ui elements to jQuery objects before initialize", function() {
     var MyViewClass = BaseViewClass.extend({
@@ -63,5 +63,24 @@ describe("The backbone.extension.js extension library for Backbone", function() 
     });
 
     view = new MyViewClass();
+  });
+
+  it("should bind events to named ui elements", function() {
+    var MyViewClass = BaseViewClass.extend({
+      $clickedObject: null,
+
+      events: {
+        'click btn': 'handleEvent'
+      },
+
+      handleEvent: function(evt) {
+        this.$clickedObject = $(evt.currentTarget);
+      }
+    });
+
+    var view = new MyViewClass();
+
+    view.ui.btn.trigger('click');
+    expect(view.$clickedObject[0]).toBe(view.ui.btn[0]);
   });
 });
