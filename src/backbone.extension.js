@@ -52,20 +52,20 @@ _.extend(Backbone.View.prototype, {
   globalEvents : {},
 
   _configure: function() {
+    var self = this;
+    
     _.bindAll(this);
 
     this.uuid =_.uniqueId('class_');
 
     this.init_orig = this.initialize || function() {};
-    this.initialize = this.baseInit;
+    this.initialize = function() {
+      self.bindUIElements();
+      self.delegateGlobalEvents();
+      self.init_orig.apply(self, arguments);      
+    }
 
     View_orig._configure.apply(this, arguments);
-  },
-
-  baseInit: function() {
-    this.bindUIElements();
-    this.delegateGlobalEvents();
-    this.init_orig.apply(this, arguments);
   },
 
   getUuid : function() {

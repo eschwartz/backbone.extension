@@ -25,7 +25,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
     });
   });
 
-  /*afterEach(function() {
+  afterEach(function() {
     $dom.remove();
 
     // If there's a view, close
@@ -45,7 +45,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
 
     // Unsubscribe all global events
     $.unsubscribe();
-  });*/
+  });
 
   it("should convert named ui elements to jQuery objects before initialize", function() {
     var MyViewClass = BaseViewClass.extend({
