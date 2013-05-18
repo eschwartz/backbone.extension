@@ -8,6 +8,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
                       .after($childB.clone());
 
   var BaseViewClass;
+  var view;
 
   beforeEach(function() {
     // Create test DOM
@@ -27,11 +28,23 @@ describe("The backbone.extension.js extension library for Backbone", function() 
   afterEach(function() {
     $dom.remove();
 
-    // Undelegate children events
+    // If there's a view, close
+    if(view instanceof Backbone.View) {
+      view.undelegateEvents()
+      if(view.close) { view.close() }
+    }
+
+    view = null;
+
+    // Manually undelegate children events
+    // In case there are any stragglers
     // Note that this doesn't go deep into dom
     $dom.children().each(function() {
       $(this).off();
     });
+
+    // Unsubscribe all global events
+    $.unsubscribe();
   });
 
   it("should convert named ui elements to jQuery objects before initialize", function() {
@@ -49,6 +62,6 @@ describe("The backbone.extension.js extension library for Backbone", function() 
       }
     });
 
-    new MyViewClass();
+    view = new MyViewClass();
   });
 });
