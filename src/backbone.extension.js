@@ -57,13 +57,15 @@ _.extend(Backbone.View.prototype, {
     
     _.bindAll(this);
 
-    this.uuid =_.uniqueId('class_');
-
     this.addInitializer(function(options) {
       this.bindUIElements();
       this.delegateGlobalEvents();
     });
 
+  },
+
+  getEventNamespace: function() {
+    return "delegateEvents" + this.cid;
   },
 
   // Helper method for creating
@@ -90,15 +92,13 @@ _.extend(Backbone.View.prototype, {
     }
   },
 
-  getUuid : function() {
-    return this.uuid;
-  },
-
   delegateGlobalEvents : function() {
     var topic;
+    var eventName;
     for (topic in this.globalEvents) {
       if (this.globalEvents.hasOwnProperty(topic)) {
-        $.subscribe(topic + "." + this.getUuid(), this[this.globalEvents[topic]]);
+        eventName = topic + '.' + this.getEventNamespace();
+        $.subscribe(eventName, this[this.globalEvents[topic]]);
       }
     }
   },
@@ -124,6 +124,12 @@ _.extend(Backbone.View.prototype, {
       var selector = that.uiBindings[key];
       that.ui[key] = that.$el.find(selector);
     });
+  },
+
+  undelegateEvents: function() {
+    $.unsubscribe("." + this.getEventNamespace());
+
+    View_orig.undelegateEvents.apply(this, arguments);
   },
 
   // Delegate events with named ui
@@ -159,7 +165,7 @@ _.extend(Backbone.View.prototype, {
 
         // Bind the event to the DOM object
         method = _.bind(method, this);
-        eventName += '.delegateEvents';
+        eventName += '.' + this.getEventNamespace();
 
         if (selector === '') {
           this.$el.on(eventName, method);

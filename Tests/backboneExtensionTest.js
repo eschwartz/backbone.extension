@@ -97,9 +97,69 @@ describe("The backbone.extension.js extension library for Backbone", function() 
     expect(view.$clickedObject[0]).toBe(view.ui.btn[0]);
   });
 
-  /*it("should subscribe to global published events", function() {
-    var MyViewClass = BaseViewClass.extend
-  });*/
+  it("should subscribe to global published events", function() {
+    var earthQuakeLocation;
+    var MyViewClass = BaseViewClass.extend({
+      globalEvents: {
+        'butterflyFlapsWingsInShanghai': 'createEarthquake'
+      },
+
+      createEarthquake: function(evt, location) {
+        earthQuakeLocation = location;
+      }
+    });
+
+    view = new MyViewClass();
+    $.publish('butterflyFlapsWingsInShanghai', "Los Angeles");
+
+    expect(earthQuakeLocation).toBe("Los Angeles");
+  });
+
+  it("should unbind named-ui events", function() {
+    var clickCount = 0;
+
+    var MyViewClass = BaseViewClass.extend({
+      events: {
+        'click btn': 'handleBtnClick'
+      },
+
+      handleBtnClick: function() {
+        clickCount++;
+      }
+    });
+
+    view = new MyViewClass();
+
+    view.ui.btn.trigger('click');
+    expect(clickCount).toBe(1);
+
+    view.undelegateEvents();
+    view.ui.btn.trigger('click');
+    expect(clickCount).toBe(1);
+  });
+
+  it("should unbind global events", function() {
+    var earthquakeCount = 0;
+
+    var MyViewClass = BaseViewClass.extend({
+      globalEvents: {
+        'butterflyFlapsWingsInShanghai': 'createEarthquake'
+      },
+
+      createEarthquake: function() {
+        earthquakeCount++;
+      }
+    });
+
+    view = new MyViewClass();
+
+    $.publish("butterflyFlapsWingsInShanghai");
+    expect(earthquakeCount).toBe(1);
+
+    view.undelegateEvents();
+    $.publish("butterflyFlapsWingsInShanghai");
+    expect(earthquakeCount).toBe(1);
+  });
 
   describe("addInitializer method", function() {
 
