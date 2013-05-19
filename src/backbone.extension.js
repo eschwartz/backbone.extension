@@ -51,21 +51,43 @@ _.extend(Backbone.View.prototype, {
   //  $.trigger('topic', params);
   globalEvents : {},
 
-  _configure: function() {
-    var self = this;
+  _configure: function(options) {
+
+    View_orig._configure.apply(this, arguments);
     
     _.bindAll(this);
 
     this.uuid =_.uniqueId('class_');
 
-    this.init_orig = this.initialize || function() {};
-    this.initialize = function() {
-      self.bindUIElements();
-      self.delegateGlobalEvents();
-      self.init_orig.apply(self, arguments);      
-    }
+    this.addInitializer(function(options) {
+      this.bindUIElements();
+      this.delegateGlobalEvents();
+    });
 
-    View_orig._configure.apply(this, arguments);
+  },
+
+  // Helper method for creating
+  // base classes which don't override
+  // initialize function.
+  // Call from _configure method (as above)
+  // or add to class prototype after definition
+  //
+  // Accepts a function, where the first parameter
+  // is the existing intialize method
+  addInitializer: function(initFn) {
+    var self = this;
+    var init_orig = this.initialize || function() {};
+
+    if(!_.isFunction(initFn)) { throw new Error("First argument passed to `addInitializer` must be a function"); }
+
+    // Set context
+    _.bind(initFn, this);
+    _.bind(this.initialize, this);
+
+    this.initialize = function() {
+      initFn.call(self, self.options);
+      init_orig.call(self, self.options);
+    }
   },
 
   getUuid : function() {
