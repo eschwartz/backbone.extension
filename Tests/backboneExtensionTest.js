@@ -163,7 +163,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
 
   describe("addInitializer method", function() {
 
-    it("add multiple initializers", function() {
+    it("should trigger multiple initializers", function() {
       var initAddedFlag = false, initOrigFlag = false;
 
       var MyViewClass = BaseViewClass.extend({
@@ -187,7 +187,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
       expect(initOrigFlag).toBe(true);
     });
 
-    it("should always have access to the context of this instance", function() {
+    it("should always provide access to the correct object context", function() {
       var MyViewClass = BaseViewClass.extend({
         foo: 'bar',
 
@@ -207,7 +207,7 @@ describe("The backbone.extension.js extension library for Backbone", function() 
       view = new MyViewClass();
     });
 
-    it("should pass proper arguments to all initializers", function() {
+    it("should pass constructor options as arguments to all initializers", function() {
       var MyViewClass = BaseViewClass.extend({
         _configure: function() {
           BaseViewClass.prototype._configure.apply(this, arguments);
