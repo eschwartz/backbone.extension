@@ -3,29 +3,6 @@
  */
 
 
-/* jQuery Tiny Pub/Sub - v0.7 - 10/27/2011
- * http://benalman.com/
- * Copyright (c) 2011 "Cowboy" Ben Alman; Licensed MIT, GPL */
-
-(function($) {
-
-  var o = $({});
-
-  $.subscribe = function() {
-    o.on.apply(o, arguments);
-  };
-
-  $.unsubscribe = function() {
-    o.off.apply(o, arguments);
-  };
-
-  $.publish = function() {
-    o.trigger.apply(o, arguments);
-  };
-
-}(jQuery));
-
-
 /**
  * Helper functions
  */
@@ -44,11 +21,11 @@ _.extend(Backbone.View.prototype, {
   ui: {},
 
   // Subscribe to global events
-  // using $.Event bindings
+  // using Backbone.Event bindings
   // eg:
   //  { 'topic': listener }
-  //  $.on('topic', listener);
-  //  $.trigger('topic', params);
+  //  Backbone.on('topic', listener);
+  //  Backbone.trigger('topic', params);
   globalEvents : {},
 
   _configure: function(options) {
@@ -98,10 +75,12 @@ _.extend(Backbone.View.prototype, {
     globalEvents || (globalEvents = this.globalEvents);
     if(!globalEvents) { return; }
 
-    for (topic in this.globalEvents) {
-      if (this.globalEvents.hasOwnProperty(topic)) {
-        eventName = topic + '.' + this.getEventNamespace();
-        $.subscribe(eventName, this[this.globalEvents[topic]]);
+    for (topic in globalEvents) {
+      if (globalEvents.hasOwnProperty(topic)) {
+        var handler = this[globalEvents[topic]];
+        //eventName = topic + '.' + this.getEventNamespace();
+        this.listenTo(Backbone, topic, handler);
+        //Backbone.on(eventName, this[globalEvents[topic]]);
       }
     }
   },
@@ -131,7 +110,8 @@ _.extend(Backbone.View.prototype, {
 
   undelegateEvents: function() {
     // Unsubscribe from global events
-    $.unsubscribe("." + this.getEventNamespace());
+    this.stopListening(Backbone);
+    //Backbone.off("." + this.getEventNamespace());
 
     View_orig.undelegateEvents.apply(this, arguments);
   },

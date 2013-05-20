@@ -44,7 +44,7 @@ describe("The backbone.extension.js extension library for Backbone...", function
     });
 
     // Unsubscribe all global events
-    $.unsubscribe();
+    Backbone.off();
   });
 
   it("should not overwrite initialize method", function() {
@@ -104,13 +104,13 @@ describe("The backbone.extension.js extension library for Backbone...", function
         'butterflyFlapsWingsInShanghai': 'createEarthquake'
       },
 
-      createEarthquake: function(evt, location) {
+      createEarthquake: function(location) {
         earthQuakeLocation = location;
       }
     });
 
     view = new MyViewClass();
-    $.publish('butterflyFlapsWingsInShanghai', "Los Angeles");
+    Backbone.trigger('butterflyFlapsWingsInShanghai', "Los Angeles");
 
     expect(earthQuakeLocation).toBe("Los Angeles");
   });
@@ -153,11 +153,11 @@ describe("The backbone.extension.js extension library for Backbone...", function
 
     view = new MyViewClass();
 
-    $.publish("butterflyFlapsWingsInShanghai");
+    Backbone.trigger("butterflyFlapsWingsInShanghai");
     expect(earthquakeCount).toBe(1);
 
     view.undelegateEvents();
-    $.publish("butterflyFlapsWingsInShanghai");
+    Backbone.trigger("butterflyFlapsWingsInShanghai");
     expect(earthquakeCount).toBe(1);
   });
 
@@ -267,10 +267,10 @@ describe("The backbone.extension.js extension library for Backbone...", function
       baseEvents: {
         'click btn': 'handleButtonClick'
       },
-      /*
+
       baseGlobalEvents: {
         'butterflyFlapsWings': 'createEarthquake'
-      },*/
+      },
 
       _configure: function() {
         Backbone.View.prototype._configure.apply(this, arguments);
@@ -281,8 +281,8 @@ describe("The backbone.extension.js extension library for Backbone...", function
         this.events || (this.events = {});
         this.events = _.extend({}, this.baseEvents, this.events);
 
-        /*this.globalEvents || (this.globalEvents = {});
-        this.globalEvents = _.extend({}, this.baseGlobalEvents, this.globalEvents);*/
+        this.globalEvents || (this.globalEvents = {});
+        this.globalEvents = _.extend({}, this.baseGlobalEvents, this.globalEvents);
       },
 
       handleButtonClick: function() {
@@ -318,7 +318,7 @@ describe("The backbone.extension.js extension library for Backbone...", function
 
     view = new MyChildViewClass();
 
-    $.publish("some:event");
+    Backbone.trigger("some:event");
     expect(someEventCount).toBe(1);
   });
 });
