@@ -1,4 +1,4 @@
-describe("The backbone.extension.js extension library for Backbone", function() {
+describe("The backbone.extension.js extension library for Backbone...", function() {
 
   var $container = $('<div class="container"></div>');
   var $childA = $('<div class="childA"></div>');
@@ -250,5 +250,75 @@ describe("The backbone.extension.js extension library for Backbone", function() 
       expect(initFlag).toBe(true);
     });
 
+  });
+
+
+  it("should not be bothered by multiple levels of inheritence", function() {
+    var btnClickCount = 0;
+    var childAClickCount = 0;
+    var quakeCount = 0;
+    var someEventCount = 0;
+
+    var MyParentViewClass = Backbone.View.extend({
+      baseUI: {
+        'btn': '.btn'
+      },
+
+      baseEvents: {
+        'click btn': 'handleButtonClick'
+      },
+      /*
+      baseGlobalEvents: {
+        'butterflyFlapsWings': 'createEarthquake'
+      },*/
+
+      _configure: function() {
+        Backbone.View.prototype._configure.apply(this, arguments);
+
+        this.ui || (this.ui = {});
+        this.ui = _.extend({}, this.baseUI, this.ui)
+
+        this.events || (this.events = {});
+        this.events = _.extend({}, this.baseEvents, this.events);
+
+        /*this.globalEvents || (this.globalEvents = {});
+        this.globalEvents = _.extend({}, this.baseGlobalEvents, this.globalEvents);*/
+      },
+
+      handleButtonClick: function() {
+        clickCount++;
+      },
+
+      createEarthquake: function() {
+        quakeCount++;
+      }
+    });
+
+    var MyChildViewClass = Backbone.View.extend({
+      events: {
+        'click childA': 'handleClickChildA'
+      },
+
+      globalEvents: {
+        'some:event': 'someHandler'
+      },
+
+      initialize: function() {
+        a = 1;
+      },
+
+      handleClickChildA: function() {
+        childAClickCount++;
+      },
+
+      someHandler: function() {
+        someEventCount++;
+      }
+    });
+
+    view = new MyChildViewClass();
+
+    $.publish("some:event");
+    expect(someEventCount).toBe(1);
   });
 });

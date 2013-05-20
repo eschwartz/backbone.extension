@@ -59,7 +59,6 @@ _.extend(Backbone.View.prototype, {
 
     this.addInitializer(function(options) {
       this.bindUIElements();
-      this.delegateGlobalEvents();
     });
 
   },
@@ -92,9 +91,13 @@ _.extend(Backbone.View.prototype, {
     }
   },
 
-  delegateGlobalEvents : function() {
+  delegateGlobalEvents : function(globalEvents) {
     var topic;
     var eventName;
+
+    globalEvents || (globalEvents = this.globalEvents);
+    if(!globalEvents) { return; }
+
     for (topic in this.globalEvents) {
       if (this.globalEvents.hasOwnProperty(topic)) {
         eventName = topic + '.' + this.getEventNamespace();
@@ -127,6 +130,7 @@ _.extend(Backbone.View.prototype, {
   },
 
   undelegateEvents: function() {
+    // Unsubscribe from global events
     $.unsubscribe("." + this.getEventNamespace());
 
     View_orig.undelegateEvents.apply(this, arguments);
@@ -134,13 +138,15 @@ _.extend(Backbone.View.prototype, {
 
   // Delegate events with named ui
   delegateEvents: function(events) {
+    this.undelegateEvents();
+
+    this.delegateGlobalEvents();
 
     events || ( events = this.events);
     if (!(events)) {
       return;
     }
 
-    this.undelegateEvents();
     var key;
     for (key in events) {
       if (events.hasOwnProperty(key)) {
